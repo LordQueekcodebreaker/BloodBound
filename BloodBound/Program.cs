@@ -8,8 +8,8 @@ using Newtonsoft.Json;
 public class Program
 {
     private DiscordSocketClient _client { get; set; }
-    private string _token { get; set; }
     private IRollerService _rollService { get; set; }
+    private string _token { get; set; }
 
 
     public static Task Main(string[] args)

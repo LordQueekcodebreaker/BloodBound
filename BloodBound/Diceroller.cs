@@ -14,13 +14,13 @@ namespace BloodBound
             return rnd.Next(1,11);
         }
 
-        public int[] RollPool(int v)
+        public int[] Roll(int diceCount)
         {
-            if (v <= 0)
+            if (diceCount <= 0)
                 throw new DicePoolException("DicePool Requires at least one dice");
 
-            int[] result = new int [v];
-            for (int i = 0; i < v; i++)
+            int[] result = new int [diceCount];
+            for (int i = 0; i < diceCount; i++)
             {
                 result[i] = Roll();
             }
