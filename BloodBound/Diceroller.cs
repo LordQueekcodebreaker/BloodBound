@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BloodBound
 {
-    public class Diceroller
+    public class Diceroller : IRollerService
     {
         public int Roll()
         {

@@ -7,11 +7,10 @@ using Newtonsoft.Json;
 
 public class Program
 {
-    private DiscordSocketClient _client;
+    private DiscordSocketClient _client { get; set; }
+    private string _token { get; set; }
+    private IRollerService _rollService { get; set; }
 
-    private string _token;
-
-   
 
     public static Task Main(string[] args)
     { 
@@ -35,6 +34,7 @@ public class Program
         _client.Ready += Client_Ready;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
+        _rollService = new Diceroller();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
@@ -69,8 +69,8 @@ public class Program
     {
         if (command.CommandName == "roll")
         {
-            Diceroller dr = new Diceroller();
-            int value = dr.Roll();
+            
+            int value = _rollService.Roll();
             await command.RespondAsync($"you rolled a {value.ToString()}");
         }
         else
