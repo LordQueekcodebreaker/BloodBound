@@ -55,6 +55,12 @@ public class Program
         globalRollCommand.WithDescription("Gives a single D10 result");
         applicationCommandProperties.Add(globalRollCommand.Build());
 
+        var globalRollPoolCommand = new SlashCommandBuilder();
+        globalRollPoolCommand.WithName("roll-pool");
+        globalRollPoolCommand.WithDescription("Gives a set of D10 results");
+        globalRollPoolCommand.AddOption("Pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true);
+        applicationCommandProperties.Add(globalRollPoolCommand.Build());
+
         try
         {
             await _client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommandProperties.ToArray());
@@ -67,15 +73,18 @@ public class Program
     }
     private async Task SlashCommandHandler(SocketSlashCommand command)
     {
-        if (command.CommandName == "roll")
+        switch (command.Data.Name)
         {
-            
-            int value = _rollService.Roll();
-            await command.RespondAsync($"you rolled a {value.ToString()}");
+            case "roll":
+                int value = _rollService.Roll();
+                await command.RespondAsync($"you rolled a {value.ToString()}");
+                return;
+
+            case "roll pool":
+                return;
+
         }
-        else
-        {
-          await command.RespondAsync($"You executed {command.Data.Name}");
-        }
+        await command.RespondAsync($"You executed {command.Data.Name}");
+        
     }
 }
