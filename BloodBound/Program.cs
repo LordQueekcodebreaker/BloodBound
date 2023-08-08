@@ -58,7 +58,7 @@ public class Program
         var globalRollPoolCommand = new SlashCommandBuilder();
         globalRollPoolCommand.WithName("roll-pool");
         globalRollPoolCommand.WithDescription("Gives a set of D10 results");
-        globalRollPoolCommand.AddOption("Pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true);
+        globalRollPoolCommand.AddOption("pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true);
         applicationCommandProperties.Add(globalRollPoolCommand.Build());
 
         try
