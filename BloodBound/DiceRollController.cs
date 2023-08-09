@@ -25,10 +25,6 @@ public class DiceRollController
 
     }
 
-    private bool IsBeastlyFail(int[] listResults, int hungerIndex)
-    {
-        throw new NotImplementedException();
-    }
 
     public int CalculateSuccesses(int[] diceArray)
     {
@@ -66,6 +62,12 @@ public class DiceRollController
             }
         }
         return false;
+    }
+
+    public bool IsBeastlyFail(int[] Diceresult, int index)
+    {
+        throw new NotImplementedException();
+        
     }
 
     Func<double, int> CalculateCritSuccesses = (tenCount) => Convert.ToInt32( Math.Floor(tenCount / 2) * 2);
