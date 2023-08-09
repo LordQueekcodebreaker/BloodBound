@@ -9,6 +9,7 @@ public class Program
 {
     private DiscordSocketClient _client { get; set; }
     private IRollerService _rollService { get; set; }
+    //private DiceRollController _rollController { get; set; }
     private string _token { get; set; }
 
 
@@ -59,6 +60,7 @@ public class Program
         globalRollPoolCommand.WithName("roll-pool");
         globalRollPoolCommand.WithDescription("Gives a set of D10 results");
         globalRollPoolCommand.AddOption("pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true);
+        globalRollPoolCommand.AddOption("hunger", ApplicationCommandOptionType.Integer, "amount in the dicepool", isRequired: true);
         applicationCommandProperties.Add(globalRollPoolCommand.Build());
 
         try
@@ -81,6 +83,7 @@ public class Program
                 return;
 
             case "roll pool":
+                
                 return;
 
         }
