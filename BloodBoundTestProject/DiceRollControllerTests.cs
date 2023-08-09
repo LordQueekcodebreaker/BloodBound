@@ -130,5 +130,33 @@ namespace BloodBoundTestProject
             Assert.That(result, Is.EqualTo(expectedResult));
         }
 
+        [Test]
+        public void IsMessy_HungerZero_ReturnsFalse()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 8, 8, 10, 10 };
+            bool expectedResult = false;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsMessy(vs, 0);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void IsMessy_DicepoolZero_ReturnsFalse()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[0];
+            bool expectedResult = false;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsMessy(vs, 0);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
     }
 }

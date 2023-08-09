@@ -15,13 +15,19 @@ public class DiceRollController
     {
         RollResultContainer resultContainer = new RollResultContainer();
         var ListResults = _rollerService.Roll(dicePool);
-        //var regularDice = TakeRegularDice(ListResults, dicePool - hunger);
+        var hungerIndex = dicePool - hunger;
         _resultContainer.Successes = CalculateSuccesses(ListResults);
-        _resultContainer.Messy = IsMessy(ListResults, dicePool - hunger); 
+        _resultContainer.Messy = IsMessy(ListResults, hungerIndex);
+        _resultContainer.BeastlyFail = IsBeastlyFail(ListResults, hungerIndex);
         _resultContainer.DiceResult = ListResults;
         
         return resultContainer;
 
+    }
+
+    private bool IsBeastlyFail(int[] listResults, int hungerIndex)
+    {
+        throw new NotImplementedException();
     }
 
     public int CalculateSuccesses(int[] diceArray)
@@ -62,7 +68,5 @@ public class DiceRollController
         return false;
     }
 
-
-    Func<int[],int, int[]> TakeRegularDice = (array, index) => array.Take(index).ToArray();
     Func<double, int> CalculateCritSuccesses = (tenCount) => Convert.ToInt32( Math.Floor(tenCount / 2) * 2);
 }
