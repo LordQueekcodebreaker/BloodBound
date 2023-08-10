@@ -172,19 +172,46 @@ namespace BloodBoundTestProject
             Assert.That(result, Is.EqualTo(expectedResult));
         }
 
-        //[Test]
-        //public void IsBeastly_DicepoolWithNoSuccessesOneInHungerPool_ReturnsFalse()
-        //{
-        //    Diceroller dr = new Diceroller();
-        //    DiceRollController drc = new DiceRollController(dr);
-        //    int[] vs = new int[] { 5, 5, 5, 1 };
-        //    bool expectedResult = true;
+        [Test]
+        public void IsBeastly_NoOneInHungerPool_ReturnsFalse()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 3, 3, 3, 3 };
+            bool expectedResult = false;
 
-        //    drc.CalculateSuccesses(vs);
-        //    bool result = drc.IsBeastlyFail(vs, 1);
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsBeastlyFail(vs, 0);
 
-        //    Assert.That(result, Is.EqualTo(expectedResult));
-        //}
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
 
+        [Test]
+        public void IsBeastly_DicepoolWithNoSuccessesOneInHungerPool_ReturnsFalse()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 5, 5, 5, 1 };
+            bool expectedResult = true;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsBeastlyFail(vs, 1);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void IsBeastly_DicepoolWithOneSuccessOneInHungerPool_ReturnsFalse()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 5, 8, 5, 1 };
+            bool expectedResult = false;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsBeastlyFail(vs, 1);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
     }
 }

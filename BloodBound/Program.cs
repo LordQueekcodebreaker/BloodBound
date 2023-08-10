@@ -9,7 +9,8 @@ public class Program
 {
     private DiscordSocketClient _client { get; set; }
     private IRollerService _rollService { get; set; }
-    //private DiceRollController _rollController { get; set; }
+    private DiceRollController _rollController { get; set; }
+    public IRollResultToMessageConverter _resultConverter { get; set; }
     private string _token { get; set; }
 
 
@@ -36,6 +37,8 @@ public class Program
         _client.SlashCommandExecuted += SlashCommandHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
         _rollService = new Diceroller();
+        _rollController = new DiceRollController(_rollService);
+        _resultConverter = new RollResultStringBuilder();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
@@ -89,9 +92,14 @@ public class Program
                 await command.RespondAsync($"you rolled a {value.ToString()}");
                 return;
 
-            case "roll pool":
-                
-                return;
+            case "roll-pool":
+                var optionsArray =command.Data.Options.ToArray();
+                var dicePool = Convert.ToInt32(optionsArray[0].Value);
+                var hunger = Convert.ToInt32(optionsArray[1].Value);
+                RollResultContainer result = _rollController.DetermineResult(dicePool, hunger);
+                string message = _resultConverter.ToMessage(result, dicePool - hunger);
+                await command.RespondAsync(message);
+                return ;
 
         }
         await command.RespondAsync($"You executed {command.Data.Name}");

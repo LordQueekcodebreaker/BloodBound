@@ -13,7 +13,7 @@ public class DiceRollController
 
     public RollResultContainer DetermineResult(int dicePool, int hunger)
     {
-        RollResultContainer resultContainer = new RollResultContainer();
+        _resultContainer = new RollResultContainer();
         var ListResults = _rollerService.Roll(dicePool);
         var hungerIndex = dicePool - hunger;
         _resultContainer.Successes = CalculateSuccesses(ListResults);
@@ -21,30 +21,18 @@ public class DiceRollController
         _resultContainer.BeastlyFail = IsBeastlyFail(ListResults, hungerIndex);
         _resultContainer.DiceResult = ListResults;
         
-        return resultContainer;
-
+        return _resultContainer;
     }
 
 
     public int CalculateSuccesses(int[] diceArray)
     {
-        double tenCount = 0;
-        int sum = 0;
-        for (int i = 0; i < diceArray.Length; i++)
-        {
-            if (diceArray[i] >= 6)
-            {
-                if (diceArray[i] == 10)
-                {
-                    tenCount++;
-                }
-                sum++;
-            }
-        }
+        int sum = diceArray.Where(x => x >= 6).Count(); 
+        int tenCount = diceArray.Where(x => x == 10).Count();
         if (tenCount >=2)
         {
-            sum += CalculateCritSuccesses(tenCount);
             _resultContainer.Crit = true;
+            sum += CalculateCritSuccesses(tenCount);
         }
        
         return sum;
@@ -58,6 +46,7 @@ public class DiceRollController
             var hungerDice = Diceresult.Skip(index).ToArray();
             if (regularDice.Contains(10) && hungerDice.Contains(10))
             {
+                _resultContainer.Messy = true;
                 return true;
             }
         }
@@ -66,8 +55,14 @@ public class DiceRollController
 
     public bool IsBeastlyFail(int[] Diceresult, int index)
     {
-        throw new NotImplementedException();
-        
+        var hungerPool = Diceresult.Skip(index).ToArray();
+        var succesCount = Diceresult.Where(x => x >= 6).Count();
+        if (hungerPool.Contains(1) && succesCount == 0)
+        {
+            _resultContainer.BeastlyFail = true;
+            return true;
+        }
+        return false;
     }
 
     Func<double, int> CalculateCritSuccesses = (tenCount) => Convert.ToInt32( Math.Floor(tenCount / 2) * 2);
