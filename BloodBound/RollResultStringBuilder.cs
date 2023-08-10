@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BloodBound
 {
-    public class RollResultStringBuilder : IRollResultToMessageConverter
+    public class RollResultStringBuilder 
     {
         public string ToMessage(RollResultContainer container, int index)
         {

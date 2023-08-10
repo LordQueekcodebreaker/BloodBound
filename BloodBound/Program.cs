@@ -38,7 +38,7 @@ public class Program
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
         _rollService = new Diceroller();
         _rollController = new DiceRollController(_rollService);
-        _resultConverter = new RollResultStringBuilder();
+        _resultConverter = new RollResultEmbedBuilder();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
@@ -97,8 +97,8 @@ public class Program
                 var dicePool = Convert.ToInt32(optionsArray[0].Value);
                 var hunger = Convert.ToInt32(optionsArray[1].Value);
                 RollResultContainer result = _rollController.DetermineResult(dicePool, hunger);
-                string message = _resultConverter.ToMessage(result, dicePool - hunger);
-                await command.RespondAsync(message);
+                var message = _resultConverter.ToMessage(result, dicePool - hunger);
+                await command.RespondAsync(embed: message.Build());
                 return ;
 
         }

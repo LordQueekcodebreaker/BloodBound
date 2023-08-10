@@ -1,6 +1,7 @@
 ﻿using BloodBound;
+using Discord;
 
 public interface IRollResultToMessageConverter
 {
-    string ToMessage(RollResultContainer container, int index);
+    EmbedBuilder ToMessage(RollResultContainer container, int index);
 }
