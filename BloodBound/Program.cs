@@ -7,11 +7,12 @@ using Newtonsoft.Json;
 
 public class Program
 {
-    private DiscordSocketClient _client;
+    private DiscordSocketClient _client { get; set; }
+    private IRollerService _rollService { get; set; }
+    private DiceRollController _rollController { get; set; }
+    public IRollResultToMessageConverter _resultConverter { get; set; }
+    private string _token { get; set; }
 
-    private string _token;
-
-   
 
     public static Task Main(string[] args)
     { 
@@ -35,6 +36,9 @@ public class Program
         _client.Ready += Client_Ready;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
+        _rollService = new Diceroller();
+        _rollController = new DiceRollController(_rollService);
+        _resultConverter = new RollResultEmbedBuilder();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
@@ -55,6 +59,20 @@ public class Program
         globalRollCommand.WithDescription("Gives a single D10 result");
         applicationCommandProperties.Add(globalRollCommand.Build());
 
+        var globalRollPoolCommand = new SlashCommandBuilder();
+        globalRollPoolCommand.WithName("roll-pool");
+        globalRollPoolCommand.WithDescription("Gives a set of D10 results");
+        globalRollPoolCommand.AddOption("pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true, maxValue:100, minValue:1);
+        globalRollPoolCommand.AddOption(new SlashCommandOptionBuilder().WithName("hunger").WithDescription("amount of hunger").WithRequired(true)
+            .AddChoice("0", 0)
+            .AddChoice("1", 1)
+            .AddChoice("2", 2)
+            .AddChoice("3", 3)
+            .AddChoice("4", 4)
+            .AddChoice("5", 5)
+            .WithType(ApplicationCommandOptionType.Integer));
+        applicationCommandProperties.Add(globalRollPoolCommand.Build());
+
         try
         {
             await _client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommandProperties.ToArray());
@@ -67,15 +85,24 @@ public class Program
     }
     private async Task SlashCommandHandler(SocketSlashCommand command)
     {
-        if (command.CommandName == "roll")
+        switch (command.Data.Name)
         {
-            Diceroller dr = new Diceroller();
-            int value = dr.Roll();
-            await command.RespondAsync($"you rolled a {value.ToString()}");
+            case "roll":
+                int value = _rollService.Roll();
+                await command.RespondAsync($"you rolled a {value.ToString()}");
+                return;
+
+            case "roll-pool":
+                var optionsArray =command.Data.Options.ToArray();
+                var dicePool = Convert.ToInt32(optionsArray[0].Value);
+                var hunger = Convert.ToInt32(optionsArray[1].Value);
+                RollResultContainer result = _rollController.DetermineResult(dicePool, hunger);
+                var message = _resultConverter.ToMessage(result, dicePool - hunger);
+                await command.RespondAsync(embed: message.Build());
+                return ;
+
         }
-        else
-        {
-          await command.RespondAsync($"You executed {command.Data.Name}");
-        }
+        await command.RespondAsync($"You executed {command.Data.Name}");
+        
     }
 }
