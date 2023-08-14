@@ -67,21 +67,23 @@ namespace BloodBound
                 case 10:
                     return "<:vtmCriticalSuccess:955537153960591360>";
             }
-            return "<:vtmFail:955537215893688390>";
+            return "<:mtaBeastlyFail:1087016470741008495>";
         }
 
         private string ToHungerEmote(int value)
         {
             switch (value)
             {
+                case 1:
+                    return "<:vtmBeastlyFail:955537229776842783>";
                 case < 6:
-                    return "<:vtmBeastlyFail:955537260407832636>";
-                case < 9:
+                    return "<:vtmBeastlyFailure:955537260407832636>";
+                case <= 9:
                     return "<:vtmBeastlySuccess:955537240757534752>";
                 case 10:
                     return "<:vtmBeastlyCritical:955537251184562196>";
             }
-            return "<:vtmBeastlyFail:955537260407832636>";
+            return "<:mtaBeastlyFail:1087016470741008495>";
         }
     }
 }

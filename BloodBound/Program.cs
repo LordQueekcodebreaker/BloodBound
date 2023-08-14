@@ -11,6 +11,7 @@ public class Program
     private IRollerService _rollService { get; set; }
     private DiceRollController _rollController { get; set; }
     public IRollResultToMessageConverter _resultConverter { get; set; }
+    public Dictionary<string, RollResultContainer> _availableRerolls { get; set; }
     private string _token { get; set; }
 
 
@@ -35,9 +36,11 @@ public class Program
         _client.Log += Log;
         _client.Ready += Client_Ready;
         _client.SlashCommandExecuted += SlashCommandHandler;
+        // _client.ButtonExecuted += ButtonHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
         _rollService = new Diceroller();
         _rollController = new DiceRollController(_rollService);
+        _availableRerolls = new Dictionary<string, RollResultContainer>();
         _resultConverter = new RollResultEmbedBuilder();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
@@ -62,7 +65,7 @@ public class Program
         var globalRollPoolCommand = new SlashCommandBuilder();
         globalRollPoolCommand.WithName("roll-pool");
         globalRollPoolCommand.WithDescription("Gives a set of D10 results");
-        globalRollPoolCommand.AddOption("pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true, maxValue:100, minValue:1);
+        globalRollPoolCommand.AddOption("pool", ApplicationCommandOptionType.Integer,"amount in the dicepool", isRequired: true, maxValue:21, minValue:1);
         globalRollPoolCommand.AddOption(new SlashCommandOptionBuilder().WithName("hunger").WithDescription("amount of hunger").WithRequired(true)
             .AddChoice("0", 0)
             .AddChoice("1", 1)
@@ -71,6 +74,8 @@ public class Program
             .AddChoice("4", 4)
             .AddChoice("5", 5)
             .WithType(ApplicationCommandOptionType.Integer));
+
+        
         applicationCommandProperties.Add(globalRollPoolCommand.Build());
 
         try
@@ -97,12 +102,22 @@ public class Program
                 var dicePool = Convert.ToInt32(optionsArray[0].Value);
                 var hunger = Convert.ToInt32(optionsArray[1].Value);
                 RollResultContainer result = _rollController.DetermineResult(dicePool, hunger);
+                string name = command.User.Username;
+                if (_availableRerolls.ContainsKey(name))
+                {
+                    _availableRerolls.Remove(name);
+                }
+                _availableRerolls.Add(name, result);
                 var message = _resultConverter.ToMessage(result, dicePool - hunger);
                 await command.RespondAsync(embed: message.Build());
-                return ;
+                return;
 
         }
         await command.RespondAsync($"You executed {command.Data.Name}");
-        
     }
+
+    //private async Task ButtonHandler(SocketSlashCommand command)
+    //{
+    //    if (command.Data.Name ==)
+    //}
 }

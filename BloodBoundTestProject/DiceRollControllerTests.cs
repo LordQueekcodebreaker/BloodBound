@@ -103,6 +103,20 @@ namespace BloodBoundTestProject
         }
 
         [Test]
+        public void IsMessy_AllTenInDicePool_ReturnsTrue()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 10, 10, 10, 10 };
+            bool expectedResult = true;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsMessy(vs, 2);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
         public void IsMessy_NoTenInHungerpool_ReturnsFalse()
         {
             Diceroller dr = new Diceroller();
