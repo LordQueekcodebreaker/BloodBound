@@ -107,7 +107,8 @@ public class Program
                 {
                     _availableRerolls.Add(name, new RerollResultContainer() { HungerIndex = dicePool - hunger, RollResult = result, OriginalResult = $"{message.Title}({result.Successes})" });
                 }
-                var rerollButton = new ComponentBuilder().WithButton("Reroll", "regular-reroll");
+                _availableRerolls[name] = new RerollResultContainer() { HungerIndex = dicePool - hunger, RollResult = result, OriginalResult = $"{message.Title}({result.Successes})" };
+                var rerollButton = GetButton(result, hunger);
                 await command.RespondAsync(embed: message.Build(), components: rerollButton.Build());
                 return;
         }
@@ -135,5 +136,15 @@ public class Program
                 await component.RespondAsync(embed: message.Build());
                 break;
         }
+    }
+
+    private ComponentBuilder GetButton(RollResultContainer container, int hunger)
+    {
+        var builder = new ComponentBuilder();
+        if (container.DiceResult.Length == hunger)
+        {
+            return builder.WithButton("Reroll", "regular-reroll", disabled: true);
+        }
+        return builder.WithButton("Reroll", "regular-reroll", disabled: false);
     }
 }

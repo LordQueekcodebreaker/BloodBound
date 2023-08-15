@@ -40,6 +40,10 @@ public class DiceRollController
 
     public int [] RerollDice(int[] vs)
     {
+        if (AllSuccesses(vs))
+        {
+            return vs;
+        }
         int count = 0;
         for (int i = 0; i < vs.Length; i++)
         {
@@ -92,4 +96,5 @@ public class DiceRollController
     }
 
     Func<double, int> CalculateCritSuccesses = (tenCount) => Convert.ToInt32( Math.Floor(tenCount / 2) * 2);
+    Func<int[], Boolean> AllSuccesses = (diceresult) => diceresult.Where((x) => x >= 6).Count() == diceresult.Length ? true: false;
 }
