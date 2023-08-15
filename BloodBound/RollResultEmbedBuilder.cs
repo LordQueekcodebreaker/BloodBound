@@ -24,6 +24,14 @@ namespace BloodBound
             return _message;
         }
 
+        public EmbedBuilder ToRerollMessage(RerollResultContainer reroll, int index)
+        {
+            _message = ToMessage(reroll.RollResult, index);
+            _message.Title += " • Rerolled Failures";
+            _message.AddField("Original Result",$"```{reroll.OriginalResult}```", false);
+            return _message;
+        }
+
         private string GetTitle(RollResultContainer container)
         {
             if (container.Crit)
@@ -31,15 +39,15 @@ namespace BloodBound
                 if (container.Messy)
                 {
                     _message.Color = Color.Red;
-                    return "Messy Success!";
+                    return "Messy Success";
                 }
                 _message.Color = Color.Blue;
-                return "Critical Success!";
+                return "Critical Success";
             }
             else if (container.BeastlyFail)
             {
                 _message.Color = Color.DarkRed;
-                return "Beastial Failure!";
+                return "Beastial Failure";
             }
             else
             {

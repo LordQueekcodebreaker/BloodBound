@@ -11,7 +11,7 @@ public class Program
     private IRollerService _rollService { get; set; }
     private DiceRollController _rollController { get; set; }
     public IRollResultToMessageConverter _resultConverter { get; set; }
-    public Dictionary<string, RollResultContainer> _availableRerolls { get; set; }
+    public Dictionary<string, RerollResultContainer> _availableRerolls { get; set; }
     private string _token { get; set; }
 
 
@@ -36,11 +36,11 @@ public class Program
         _client.Log += Log;
         _client.Ready += Client_Ready;
         _client.SlashCommandExecuted += SlashCommandHandler;
-        // _client.ButtonExecuted += ButtonHandler;
+        _client.ButtonExecuted += ButtonHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
         _rollService = new Diceroller();
         _rollController = new DiceRollController(_rollService);
-        _availableRerolls = new Dictionary<string, RollResultContainer>();
+        _availableRerolls = new Dictionary<string, RerollResultContainer>();
         _resultConverter = new RollResultEmbedBuilder();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
@@ -75,7 +75,6 @@ public class Program
             .AddChoice("5", 5)
             .WithType(ApplicationCommandOptionType.Integer));
 
-        
         applicationCommandProperties.Add(globalRollPoolCommand.Build());
 
         try
@@ -102,22 +101,39 @@ public class Program
                 var dicePool = Convert.ToInt32(optionsArray[0].Value);
                 var hunger = Convert.ToInt32(optionsArray[1].Value);
                 RollResultContainer result = _rollController.DetermineResult(dicePool, hunger);
-                string name = command.User.Username;
-                if (_availableRerolls.ContainsKey(name))
-                {
-                    _availableRerolls.Remove(name);
-                }
-                _availableRerolls.Add(name, result);
                 var message = _resultConverter.ToMessage(result, dicePool - hunger);
-                await command.RespondAsync(embed: message.Build());
+                string name = command.User.Username;
+                if (!_availableRerolls.ContainsKey(name))
+                {
+                    _availableRerolls.Add(name, new RerollResultContainer() { HungerIndex = dicePool - hunger, RollResult = result, OriginalResult = $"{message.Title}({result.Successes})" });
+                }
+                var rerollButton = new ComponentBuilder().WithButton("Reroll", "regular-reroll");
+                await command.RespondAsync(embed: message.Build(), components: rerollButton.Build());
                 return;
-
         }
         await command.RespondAsync($"You executed {command.Data.Name}");
     }
 
-    //private async Task ButtonHandler(SocketSlashCommand command)
-    //{
-    //    if (command.Data.Name ==)
-    //}
+    private async Task ButtonHandler(SocketMessageComponent component)
+    {
+        switch (component.Data.CustomId)
+        {
+            case "regular-reroll":
+                var user = component.User.Username;
+                if (!_availableRerolls.ContainsKey(user))
+                {
+                    await component.RespondAsync($"{component.User.Mention} Has no permission to reroll",ephemeral: true);
+                    break;
+                }
+                var result =_availableRerolls[user];
+                _availableRerolls.Remove(user);
+                result.RollResult = _rollController.RerollDiceResult(result.RollResult, result.HungerIndex);
+                var message = _resultConverter.ToRerollMessage(result, result.HungerIndex);
+                var msg = await component.Channel.GetMessagesAsync(1).FirstAsync();
+                await component.Channel.DeleteMessageAsync(msg.First().Id);
+                message.WithAuthor(component.User);
+                await component.RespondAsync(embed: message.Build());
+                break;
+        }
+    }
 }

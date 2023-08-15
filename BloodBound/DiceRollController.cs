@@ -16,14 +16,41 @@ public class DiceRollController
         _resultContainer = new RollResultContainer();
         var ListResults = _rollerService.Roll(dicePool);
         var hungerIndex = dicePool - hunger;
-        _resultContainer.Successes = CalculateSuccesses(ListResults);
-        _resultContainer.Messy = IsMessy(ListResults, hungerIndex);
-        _resultContainer.BeastlyFail = IsBeastlyFail(ListResults, hungerIndex);
-        _resultContainer.DiceResult = ListResults;
-        
+        SetRollResult(ListResults, hungerIndex);
         return _resultContainer;
     }
 
+    public RollResultContainer RerollDiceResult(RollResultContainer container, int index)
+    {
+        var regularDice = container.DiceResult.Take(index).ToArray();
+        var hungerDice = container.DiceResult.Skip(index).ToArray();
+        var rerolledRegularDice = RerollDice(regularDice);
+        var listResult = rerolledRegularDice.Concat(hungerDice).ToArray();
+        SetRollResult(listResult, index);
+        return _resultContainer;
+    }
+
+    private void SetRollResult(int [] listResults, int index)
+    {
+        _resultContainer.Successes = CalculateSuccesses(listResults);
+        _resultContainer.Messy = IsMessy(listResults, index);
+        _resultContainer.BeastlyFail = IsBeastlyFail(listResults, index);
+        _resultContainer.DiceResult = listResults;
+    }
+
+    public int [] RerollDice(int[] vs)
+    {
+        int count = 0;
+        for (int i = 0; i < vs.Length; i++)
+        {
+            if (vs[i] < 6 && count < 3)
+            {
+                vs[i] = _rollerService.Roll();
+                count++;
+            }
+        }
+        return vs;
+    }
 
     public int CalculateSuccesses(int[] diceArray)
     {
@@ -34,7 +61,6 @@ public class DiceRollController
             _resultContainer.Crit = true;
             sum += CalculateCritSuccesses(tenCount);
         }
-       
         return sum;
     }
 
@@ -44,7 +70,7 @@ public class DiceRollController
         {
             var regularDice = Diceresult.Take(index).ToArray();
             var hungerDice = Diceresult.Skip(index).ToArray();
-            if (regularDice.Contains(10) && hungerDice.Contains(10))
+            if (regularDice.Contains(10) && hungerDice.Contains(10)|| hungerDice.Where(x => x == 10).Count() > 1)
             {
                 _resultContainer.Messy = true;
                 return true;

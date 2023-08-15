@@ -227,5 +227,33 @@ namespace BloodBoundTestProject
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
+
+        [Test]
+        public void RerollResult_DicepoolWithOneSuccess_ReturnsSameOrder()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            
+            int[] vs = new int[] { 4, 1, 8, 1  };
+            var expectedResult = 8;
+
+            var resultArray = drc.RerollDice(vs);
+
+            Assert.That(resultArray[2], Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void RerollResult_DicepoolWithAllSuccess_ReturnsSameArray()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+
+            int[] vs = new int[] { 7, 7, 8, 7 };
+
+            var resultArray = drc.RerollDice(vs);
+
+            Assert.That(resultArray, Is.EqualTo(vs));
+        }
+
     }
 }
