@@ -32,21 +32,18 @@ public class Program
 
     private async Task MainAsync()
     {
-        _client = new DiscordSocketClient();
-        _client.Log += Log;
-        _client.Ready += Client_Ready;
-        _client.SlashCommandExecuted += SlashCommandHandler;
-        _client.ButtonExecuted += ButtonHandler;
         _token = Environment.GetEnvironmentVariable("DISCORDTOKEN");
         _rollService = new Diceroller();
         _rollController = new DiceRollController(_rollService);
         _availableRerolls = new Dictionary<string, RerollResultContainer>();
         _resultConverter = new RollResultEmbedBuilder();
+        await SetClient();
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
         await Task.Delay(-1);
     }
+
 
     public async Task Client_Ready()
     {
@@ -75,6 +72,12 @@ public class Program
             .AddChoice("5", 5)
             .WithType(ApplicationCommandOptionType.Integer));
 
+        var globalRouseCommand = new SlashCommandBuilder();
+        globalRouseCommand.WithName("rouse");
+        globalRouseCommand.WithDescription("determines hunger gain");
+        applicationCommandProperties.Add(globalRouseCommand.Build());
+
+
         applicationCommandProperties.Add(globalRollPoolCommand.Build());
 
         try
@@ -87,6 +90,15 @@ public class Program
             Console.WriteLine(json);
         }
     }
+    private async Task SetClient()
+    {
+        _client = new DiscordSocketClient();
+        _client.Log += Log;
+        _client.Ready += Client_Ready;
+        _client.SlashCommandExecuted += SlashCommandHandler;
+        _client.ButtonExecuted += ButtonHandler;
+    }
+
     private async Task SlashCommandHandler(SocketSlashCommand command)
     {
         switch (command.Data.Name)
@@ -110,6 +122,13 @@ public class Program
                 _availableRerolls[name] = new RerollResultContainer() { HungerIndex = dicePool - hunger, RollResult = result, OriginalResult = $"{message.Title}({result.Successes})" };
                 var rerollButton = GetButton(result, hunger);
                 await command.RespondAsync(embed: message.Build(), components: rerollButton.Build());
+                return;
+
+            case "rouse":
+                int roll = _rollService.Roll();
+                var rouseMessage = _resultConverter.ToRouseMessage(roll);
+                rouseMessage.WithAuthor(command.User);
+                await command.RespondAsync(embed: rouseMessage.Build());
                 return;
         }
         await command.RespondAsync($"You executed {command.Data.Name}");
@@ -141,7 +160,7 @@ public class Program
     private ComponentBuilder GetButton(RollResultContainer container, int hunger)
     {
         var builder = new ComponentBuilder();
-        if (container.DiceResult.Length == hunger)
+        if (container.DiceResult.Length <= hunger)
         {
             return builder.WithButton("Reroll", "regular-reroll", disabled: true);
         }

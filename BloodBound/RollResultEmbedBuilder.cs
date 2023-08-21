@@ -31,6 +31,15 @@ namespace BloodBound
             _message.AddField("Original Result",$"```{reroll.OriginalResult}```", false);
             return _message;
         }
+        public EmbedBuilder ToRouseMessage(int value)
+        {
+            _message = new EmbedBuilder();
+            bool success = (value >= 6 ? true : false);
+            _message.Title = (success ? "Rouse Success" : "Rouse Failure");
+            _message.Description = (success ? "No hunger gained" : "Gained hunger!");
+            _message.ThumbnailUrl = (success ? "https://assets.inconnu.app/hunger-unfilled.webp" : "https://assets.inconnu.app/hunger-filled.webp");
+            return _message;
+        }
 
         private string GetTitle(RollResultContainer container)
         {
