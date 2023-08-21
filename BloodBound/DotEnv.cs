@@ -23,7 +23,6 @@ namespace BloodBound
                     continue;
 
                 Environment.SetEnvironmentVariable(parts[0], parts[1]);
-
             }
         }
     }

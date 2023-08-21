@@ -24,6 +24,23 @@ namespace BloodBound
             return _message;
         }
 
+        public EmbedBuilder ToRerollMessage(RerollResultContainer reroll, int index)
+        {
+            _message = ToMessage(reroll.RollResult, index);
+            _message.Title += " • Rerolled Failures";
+            _message.AddField("Original Result",$"```{reroll.OriginalResult}```", false);
+            return _message;
+        }
+        public EmbedBuilder ToRouseMessage(int value)
+        {
+            _message = new EmbedBuilder();
+            bool success = (value >= 6 ? true : false);
+            _message.Title = (success ? "Rouse Success" : "Rouse Failure");
+            _message.Description = (success ? "No hunger gained" : "Gained hunger!");
+            _message.ThumbnailUrl = (success ? "https://assets.inconnu.app/hunger-unfilled.webp" : "https://assets.inconnu.app/hunger-filled.webp");
+            return _message;
+        }
+
         private string GetTitle(RollResultContainer container)
         {
             if (container.Crit)
@@ -31,15 +48,15 @@ namespace BloodBound
                 if (container.Messy)
                 {
                     _message.Color = Color.Red;
-                    return "Messy Success!";
+                    return "Messy Success";
                 }
                 _message.Color = Color.Blue;
-                return "Critical Success!";
+                return "Critical Success";
             }
             else if (container.BeastlyFail)
             {
                 _message.Color = Color.DarkRed;
-                return "Beastial Failure!";
+                return "Beastial Failure";
             }
             else
             {
@@ -67,21 +84,23 @@ namespace BloodBound
                 case 10:
                     return "<:vtmCriticalSuccess:955537153960591360>";
             }
-            return "<:vtmFail:955537215893688390>";
+            return "<:mtaBeastlyFail:1087016470741008495>";
         }
 
         private string ToHungerEmote(int value)
         {
             switch (value)
             {
+                case 1:
+                    return "<:vtmBeastlyFail:955537229776842783>";
                 case < 6:
-                    return "<:vtmBeastlyFail:955537260407832636>";
-                case < 9:
+                    return "<:vtmBeastlyFailure:955537260407832636>";
+                case <= 9:
                     return "<:vtmBeastlySuccess:955537240757534752>";
                 case 10:
                     return "<:vtmBeastlyCritical:955537251184562196>";
             }
-            return "<:vtmBeastlyFail:955537260407832636>";
+            return "<:mtaBeastlyFail:1087016470741008495>";
         }
     }
 }

@@ -103,6 +103,20 @@ namespace BloodBoundTestProject
         }
 
         [Test]
+        public void IsMessy_AllTenInDicePool_ReturnsTrue()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            int[] vs = new int[] { 10, 10, 10, 10 };
+            bool expectedResult = true;
+
+            drc.CalculateSuccesses(vs);
+            bool result = drc.IsMessy(vs, 2);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [Test]
         public void IsMessy_NoTenInHungerpool_ReturnsFalse()
         {
             Diceroller dr = new Diceroller();
@@ -117,12 +131,12 @@ namespace BloodBoundTestProject
         }
 
         [Test]
-        public void IsMessy_NoTenInRegularpool_ReturnsFalse()
+        public void IsMessy_NoTenInRegularpool_ReturnsTrue()
         {
             Diceroller dr = new Diceroller();
             DiceRollController drc = new DiceRollController(dr);
             int[] vs = new int[] { 8, 8, 10, 10 };
-            bool expectedResult = false;
+            bool expectedResult = true;
 
             drc.CalculateSuccesses(vs);
             bool result = drc.IsMessy(vs, 2);
@@ -139,7 +153,7 @@ namespace BloodBoundTestProject
             bool expectedResult = false;
 
             drc.CalculateSuccesses(vs);
-            bool result = drc.IsMessy(vs, 0);
+            bool result = drc.IsMessy(vs, 4);
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
@@ -213,5 +227,33 @@ namespace BloodBoundTestProject
 
             Assert.That(result, Is.EqualTo(expectedResult));
         }
+
+        [Test]
+        public void RerollResult_DicepoolWithOneSuccess_ReturnsSameOrder()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+            
+            int[] vs = new int[] { 4, 1, 8, 1  };
+            var expectedResult = 8;
+
+            var resultArray = drc.RerollDice(vs);
+
+            Assert.That(resultArray[2], Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void RerollResult_DicepoolWithAllSuccess_ReturnsSameArray()
+        {
+            Diceroller dr = new Diceroller();
+            DiceRollController drc = new DiceRollController(dr);
+
+            int[] vs = new int[] { 7, 7, 8, 7 };
+
+            var resultArray = drc.RerollDice(vs);
+
+            Assert.That(resultArray, Is.EqualTo(vs));
+        }
+
     }
 }

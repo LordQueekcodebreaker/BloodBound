@@ -3,7 +3,7 @@ using BloodBound;
 
 namespace BloodBoundTestProject
 {
-    public class Tests
+    public class DiceRollerTests
     {
  
         [Test]
