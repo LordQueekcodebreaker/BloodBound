@@ -44,7 +44,6 @@ public class Program
         await Task.Delay(-1);
     }
 
-
     public async Task Client_Ready()
     {
         List<ApplicationCommandProperties> applicationCommandProperties = new();
